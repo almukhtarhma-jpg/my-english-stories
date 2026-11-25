@@ -1,0 +1,674 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My English Stories</title>
+
+<style>
+.word {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 3px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.word.active-word {
+  background-color: #ffe58a;
+  outline: 2px solid #e5b93c;
+}
+
+.inline-meaning {
+  display: block;
+  color: #16834a;
+  font-size: 12px;
+  direction: rtl;
+  margin-top: 2px;
+  text-align: center;
+}
+
+.translation-box {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f0f7ff;
+  border-radius: 8px;
+  text-align: center;
+  direction: rtl;
+  font-size: 18px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f3f7f4;
+  color: #26382e;
+}
+
+header {
+  background: #205b46;
+  color: white;
+  text-align: center;
+  padding: 25px 12px;
+}
+
+header h1 { margin: 0 0 10px; }
+
+.container {
+  max-width: 900px;
+  margin: 25px auto;
+  padding: 15px;
+}
+
+.card {
+  background: white;
+  padding: 22px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 3px 12px #0000000d;
+}
+
+h2 { color: #205b46; }
+
+textarea, select {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #ccd8d0;
+  border-radius: 8px;
+  font-size: 16px;
+  background: white;
+}
+
+textarea {
+  min-height: 160px;
+  direction: ltr;
+  text-align: left;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 18px;
+  margin: 5px;
+  background: #287653;
+  color: white;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+button:hover { background: #174d36; }
+
+.blue { background: #547d9b; }
+.red { background: #a94b4b; }
+
+#story {
+  direction: ltr;
+  text-align: left;
+  font-size: 20px;
+  line-height: 2;
+}
+
+.word {
+  cursor: pointer;
+  border-bottom: 1px dotted #287653;
+}
+
+.word:hover {
+  background: #e4f2e9;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #e5eae6;
+  text-align: center;
+}
+
+th {
+  background: #eaf3ed;
+  color: #205b46;
+}
+
+.empty {
+  color: #888;
+  text-align: center;
+  padding: 15px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.small {
+  color: #777;
+  font-size: 13px;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>📚 My English Stories</h1>
+  <p>Read • Listen • Learn</p>
+  <p>اقرأ واستمع وتعلّم الإنجليزية</p>
+</header>
+
+<div class="container">
+
+  <section class="card">
+    <h2>📖 Add Your Story</h2>
+    <textarea id="storyInput"
+      placeholder="Paste your English story here..."></textarea>
+    <button onclick="showStory()">عرض القصة</button>
+  </section>
+
+  <section class="card">
+    <h2>🎙 Choose Your Reader</h2>
+
+    <label for="voiceSelect">اختاري صوت القارئ:</label>
+    <select id="voiceSelect">
+      <option>Loading voices...</option>
+    </select>
+
+    <p class="small" id="voiceStatus">
+      الأصوات المتاحة تعتمد على جهازك والمتصفح.
+    </p>
+
+    <label for="speed">سرعة القراءة:</label>
+    <select id="speed">
+      <option value="0.7">بطيئة جداً</option>
+      <option value="0.85" selected>طبيعية وبطيئة</option>
+      <option value="1">عادية</option>
+      <option value="1.15">سريعة</option>
+    </select>
+
+    <div class="controls">
+      <button onclick="listenStory()">▶ Listen</button>
+      <button class="blue" onclick="pauseStory()">Ⅱ Pause</button>
+      <button class="blue" onclick="resumeStory()">▶ Resume</button>
+      <button class="red" onclick="stopStory()">■ Stop</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>📘 Read the Story</h2>
+    <p class="small">
+      اضغطي على الكلمة الصعبة لإضافة معناها بالعربية.
+      ستظهر جميع الكلمات في نهاية القصة.
+    </p>
+ <div id="story">Your story will appear here...</div>
+
+<div id="liveTranslation" class="translation-box">
+  <p>ستظهر هنا ترجمة الكلمة أثناء القراءة</p>
+</div>
+
+<button onclick="translateDifficultWords()">
+  🌍 Translate Difficult Words
+</button>
+
+  <section class="card">
+    <h2>⭐ Vocabulary – الكلمات الصعبة</h2>
+    <p class="small">
+      ستظهر الكلمات التي اخترتها وترجمتها هنا بعد القصة.
+    </p>
+
+    <div id="vocabulary"></div>
+
+    <button class="blue" onclick="exportWords()">
+      حفظ الكلمات في ملف
+    </button>
+  </section>
+
+</div>
+
+<footer>My English Stories © 2026</footer>
+
+<script>
+let voices = [];
+let savedWords = JSON.parse(
+  localStorage.getItem("myVocabulary") || "[]"
+);
+
+let storyWords = [];
+
+function loadVoices() {
+  if (!("speechSynthesis" in window)) {
+    document.getElementById("voiceStatus").textContent =
+      "الصوت غير مدعوم في هذا المتصفح.";
+    return;
+  }
+
+  voices = speechSynthesis.getVoices();
+
+  const select = document.getElementById("voiceSelect");
+  select.replaceChildren();
+
+  const englishVoices = voices.filter(v =>
+    v.lang.toLowerCase().startsWith("en")
+  );
+
+  englishVoices.forEach((voice, index) => {
+    const option = document.createElement("option");
+    option.value = voice.name;
+    option.textContent =
+      voice.name + " (" + voice.lang + ")";
+    select.appendChild(option);
+  });
+
+  const american = englishVoices.find(v =>
+    v.lang.toLowerCase() === "en-us"
+  );
+
+  if (american) select.value = american.name;
+
+  document.getElementById("voiceStatus").textContent =
+    englishVoices.length
+      ? englishVoices.length + " English voices available."
+      : "لا توجد أصوات إنجليزية متاحة حالياً.";
+}
+
+if ("speechSynthesis" in window) {
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+ 
+
+async function addTranslation(word) {
+  const area = document.getElementById("vocabulary");
+  area.textContent = "جاري ترجمة: " + word + "...";
+
+  try {
+    const url =
+      "https://api.mymemory.translated.net/get?q=" +
+      encodeURIComponent(word) +
+      "&langpair=en|ar";
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Translation error");
+
+    const data = await response.json();
+    const meaning = data.responseData.translatedText;
+
+    if (!meaning || data.responseStatus !== 200) {
+      throw new Error("No translation found");
+    }
+
+    const existing = savedWords.find(
+      w => w.word.toLowerCase() === word.toLowerCase()
+    );
+
+    if (existing) {
+      existing.meaning = meaning;
+    } else {
+      savedWords.push({ word, meaning });
+    }
+
+    if (!storyWords.includes(word.toLowerCase())) {
+      storyWords.push(word.toLowerCase());
+    }
+
+    localStorage.setItem(
+      "myVocabulary",
+      JSON.stringify(savedWords)
+    );
+
+    showVocabulary();
+    showStory();
+
+  } catch (error) {
+    alert("تعذرت الترجمة. تأكدي من اتصال الإنترنت وحاولي مرة أخرى.");
+    showVocabulary();
+  }
+}
+function showStory() {
+  const text = document.getElementById("storyInput").value.trim();
+  const area = document.getElementById("story");
+
+  if (!text) {
+    alert("Please enter a story first.");
+    return;
+  }
+
+  stopStory();
+  area.replaceChildren();
+  storyWords = [];
+
+  const parts = text.match(/\s+|[^\s]+/g) || [];
+  let position = 0;
+
+  parts.forEach(part => {
+    const start = position;
+    position += part.length;
+
+    if (/^\s+$/.test(part)) {
+      area.appendChild(document.createTextNode(part));
+      return;
+    }
+
+    const clean = part.replace(
+      /^[^\p{L}']+|[^\p{L}']+$/gu, ""
+    );
+
+    if (!clean) {
+      area.appendChild(document.createTextNode(part));
+      return;
+    }
+
+    const span = document.createElement("span");
+    span.className = "word";
+    span.textContent = part;
+    span.dataset.start = start;
+    span.dataset.end = position;
+    span.dataset.word = clean;
+    span.title = "اضغطي لإضافة ترجمة";
+
+    const saved = savedWords.find(
+      item => item.word.toLowerCase() === clean.toLowerCase()
+    );
+
+    if (saved) {
+      const meaning = document.createElement("span");
+      meaning.className = "inline-meaning";
+      meaning.textContent = saved.meaning;
+      span.appendChild(meaning);
+    }
+
+    span.onclick = () => addTranslation(clean);
+
+    area.appendChild(span);
+  });
+}
+
+
+   
+
+async function translateDifficultWords() {
+  const text = document.getElementById("storyInput").value.trim();
+
+  if (!text) {
+    alert("أضيفي القصة أولاً.");
+    return;
+  }
+
+  const commonWords = new Set((
+    "the a an and or but if in on at to of for from by with " +
+    "is am are was were be been being have has had do does did " +
+    "he she it they we you i my your his her their our " +
+    "this that these those who what when where why how " +
+    "not no yes very so too as than then there here " +
+    "one two all some any each every more most much many " +
+    "can could will would shall should may might must " +
+    "said say says went go going come came get got make made " +
+    "take took see saw look looked know knew think thought " +
+    "man woman men women people time day night room house " +
+    "and me him them us up down out into over after before " +
+    "about again just only also even still well back now " +
+    "hadn't didn't isn't wasn't weren't don't can't"
+  ).split(/\s+/));
+
+  const words = text.match(/\b[a-zA-Z']+\b/g) || [];
+
+  const candidates = [...new Set(
+    words.map(w => w.toLowerCase())
+  )].filter(w =>
+    w.length > 5 &&
+    !commonWords.has(w) &&
+    !savedWords.some(
+      item => item.word.toLowerCase() === w
+    )
+  ).slice(0, 12);
+
+  if (!candidates.length) {
+    alert("لا توجد كلمات جديدة مقترحة للترجمة.");
+    return;
+  }
+
+  storyWords = candidates;
+
+ const area = document.getElementById("vocabulary");
+  area.textContent = "جاري ترجم ة الكلمات، انتظري قليلاً...";
+
+  for (const word of candidates) {
+    try {
+      const url =
+        "https://api.mymemory.translated.net/get?q=" +
+        encodeURIComponent(word) +
+        "&langpair=en|ar";
+
+      const response = await fetch(url);
+      if (!response.ok) continue;
+
+      const data = await response.json();
+      const meaning = data.responseData.translatedText;
+
+      if (meaning && data.responseStatus === 200) {
+        savedWords.push({ word, meaning });
+
+        localStorage.setItem(
+          "myVocabulary",
+          JSON.stringify(savedWords)
+        );
+      }
+
+      showVocabulary();
+
+    } catch (error) {
+      console.log("Could not translate:", word);
+    }
+  }
+
+  showVocabulary();
+  alert("انتهت ترجمة الكلمات المقترحة!");
+}
+
+ 
+
+
+function listenStory() {
+  const text = document.getElementById("storyInput").value.trim();
+
+  if (!text) {
+    alert("Please enter a story first.");
+    return;
+  }
+
+  if (!("speechSynthesis" in window)) {
+    alert("Speech is not supported.");
+    return;
+  }
+
+  stopStory();
+
+  const speech = new SpeechSynthesisUtterance(text);
+
+  const selectedName =
+    document.getElementById("voiceSelect").value;
+
+  const selectedVoice = voices.find(
+    v => v.name === selectedName
+  );
+
+  if (selectedVoice) {
+    speech.voice = selectedVoice;
+    speech.lang = selectedVoice.lang;
+  } else {
+    speech.lang = "en-US";
+  }
+
+  speech.rate = Number(
+    document.getElementById("speed").value
+  );
+
+  speech.onboundary = function(event) {
+    if (event.name !== "word") return;
+
+    const position = event.charIndex;
+
+    const spans = document.querySelectorAll("#story .word");
+
+    let currentWord = null;
+
+    for (const span of spans) {
+      const start = Number(span.dataset.start);
+      const end = Number(span.dataset.end);
+
+      if (position >= start && position < end) {
+        currentWord = span;
+        break;
+      }
+    }
+
+    if (!currentWord) return;
+
+    document.querySelectorAll("#story .word").forEach(
+      span => span.classList.remove("active-word")
+    );
+
+    currentWord.classList.add("active-word");
+
+    const word = currentWord.dataset.word.toLowerCase();
+
+    const saved = savedWords.find(
+      item => item.word.toLowerCase() === word
+    );
+
+    document.getElementById("liveTranslation").textContent =
+      saved ? saved.meaning : "لا توجد ترجمة محفوظة لهذه الكلمة";
+  };
+
+  speech.onend = function() {
+    document.querySelectorAll("#story .word").forEach(
+      span => span.classList.remove("active-word")
+    );
+  };
+
+  speechSynthesis.speak(speech);
+}
+
+function pauseStory() {
+  if (speechSynthesis.speaking) speechSynthesis.pause();
+}
+
+function resumeStory() {
+  if (speechSynthesis.paused) speechSynthesis.resume();
+}
+
+function stopStory() {
+  if ("speechSynthesis" in window) {
+    speechSynthesis.cancel();
+  }
+}
+
+function showVocabulary() {
+  const area = document.getElementById("vocabulary");
+  area.replaceChildren();
+
+  const storyList = savedWords.filter(w =>
+    storyWords.includes(w.word.toLowerCase())
+  );
+
+  if (!storyList.length) {
+    area.innerHTML =
+      '<p class="empty">لا توجد كلمات محفوظة من هذه القصة بعد.</p>';
+    return;
+  }
+
+  const table = document.createElement("table");
+  const head = document.createElement("tr");
+
+  ["English", "العربية", "إجراء"].forEach(label => {
+    const th = document.createElement("th");
+    th.textContent = label;
+    head.appendChild(th);
+  });
+
+  table.appendChild(head);
+
+  storyList.forEach(item => {
+    const row = document.createElement("tr");
+
+    const word = document.createElement("td");
+    word.textContent = item.word;
+
+    const meaning = document.createElement("td");
+    meaning.textContent = item.meaning;
+
+    const action = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.className = "red";
+    btn.textContent = "حذف";
+
+    btn.onclick = () => {
+      savedWords = savedWords.filter(
+        w => w.word.toLowerCase() !== item.word.toLowerCase()
+      );
+
+      localStorage.setItem(
+        "myVocabulary", JSON.stringify(savedWords)
+      );
+
+      showVocabulary();
+    };
+
+    action.appendChild(btn);
+    row.append(word, meaning, action);
+    table.appendChild(row);
+  });
+
+  area.appendChild(table);
+}
+
+function exportWords() {
+  if (!savedWords.length) {
+    alert("لا توجد كلمات محفوظة.");
+    return;
+  }
+
+  const content = [
+    "English,Arabic",
+    ...savedWords.map(w =>
+      '"' + w.word.replace(/"/g, '""') + '","' +
+      w.meaning.replace(/"/g, '""') + '"'
+    )
+  ].join("\n");
+
+  const blob = new Blob(
+    ["\uFEFF" + content],
+    { type: "text/csv;charset=utf-8" }
+  );
+
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+
+  link.href = url;
+  link.download = "My-Vocabulary.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+showVocabulary();
+</script>
+
+</body>
+</html>
+
